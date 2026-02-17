@@ -134,6 +134,41 @@ Through this project I learned:
 
 ---
 
+🧩 Challenges Faced & How I Solved Them
+During development I encountered several real-world full-stack issues. Solving these helped me understand how production web apps actually work.
+1. OAuth Redirect Loop (Google Login returned to same page)
+Problem:
+After logging in with Google, the app redirected back to the homepage but the user session was not available. The UI still showed the login button.
+Cause:
+Next.js App Router renders on the server first, while Supabase authentication runs in the browser. The session cookie was not yet read when the page loaded.
+Solution:
+I implemented a client-side session check using:
+supabase.auth.getUser()
+inside useEffect() so the UI updates only after the browser receives the session.
+What I learned:
+Difference between server rendering and client authentication state.
+
+2. Database Insert Failed (RLS Policy Error)
+Problem:
+Adding a bookmark showed:
+“Insert failed — check RLS policy”
+Even though the database table existed.
+Cause:
+Supabase uses Row Level Security by default. Without policies, the database rejects all operations even from authenticated users.
+Solution:
+I created policies
+SELECT
+auth.uid() = user_id
+
+INSERT
+auth.uid() = user_id
+
+DELETE
+auth.uid() = user_id
+What I learned:
+Frontend authentication ≠ database authorization.
+Security must be enforced at the database level, not only in UI.
+
 ## 👨‍💻 Author
 
 **Shashank Devarasetty**
